@@ -2,11 +2,11 @@ const fs = require('fs');
 const ejs = require('ejs');
 
 exports.handler = function (event, context, callback) {
-    console.log(JSON.stringify({ pathParameters: event.pathParameters, stageVariables: event.stageVariables }, null, 2));
+    console.log(event);
 
     console.log(`Response: ${event.pathParameters.type}.ejs`);
 
-    ejs.renderFile(`html/${event.pathParameters.type}.ejs`, {}, {}, function (err, html) {
+    ejs.renderFile(`html/${event.pathParameters.type}.ejs`, {qs: event.queryStringParameters}, {}, function (err, html) {
         // str => Rendered HTML string
         callback(err, {
             "statusCode": 200,
