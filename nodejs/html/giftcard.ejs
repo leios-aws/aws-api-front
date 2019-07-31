@@ -73,7 +73,12 @@
             chart.update();
         });
 
-        $.ajax({ url: "/giftcard/lowprice", dataType: "json", crossDomain: true }).done(function (response) {
+        $.ajax({
+            url: "/giftcard/lowprice",
+            dataType: "json",
+            crossDomain: true,
+            data: <%- JSON.stringify(qs) %>
+        }).done(function (response) {
             console.log(response);
             var auto_colors = ['rgb(255, 99, 132)',
                 'rgb(255, 159, 64)',
@@ -87,9 +92,7 @@
                 type: 'bar',
                 data: {
                     datasets: response.map(function (dataset, dataset_index) {
-                        var lowprices = dataset.data.map(function (a) {
-                            return { t: a.ts * 1000, y: a.price };
-                        }).sort(function (a, b) {
+                        var lowprices = dataset.data.sort(function (a, b) {
                             if (a.t > b.t) {
                                 return -1;
                             } else if (a.t < b.t) {
