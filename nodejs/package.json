@@ -1,12 +1,14 @@
 {
   "name": "aws-api-front",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node -e \"require('./index.js').handler({key1: 'value1', key2: 'value2', key3: 'value3'})\""
+    "test": "node -e \"require('./index.js').handler({pathParameters: {type: 'giftcard'}}, null, function(err, result) { console.log(result);} )\""
   },
   "author": "",
   "license": "ISC",
-  "dependencies": {}
+  "dependencies": {
+    "ejs": "^2.6.2"
+  }
 }

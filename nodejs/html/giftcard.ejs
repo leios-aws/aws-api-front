@@ -2,11 +2,8 @@
 <html>
 
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <%- include('header'); -%>
     <title>상품권 최저가 그래프</title>
-
-    <!--Let browser know website is optimized for mobile-->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!-- Compiled and minified CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
@@ -34,15 +31,7 @@
 </head>
 
 <body>
-    <nav>
-        <div class="nav-wrapper">
-            <ul id="nav-mobile" class="left hide-on-med-and-down">
-                <li><a href="/front/giftcard" class="nav-item">상품권</a></li>
-                <li><a href="/front/weight" class="nav-item">몸무게</a></li>
-            </ul>
-        </div>
-    </nav>
-
+    <%- include('nav'); -%>
 
     <div class="container">
         <div class="section">
