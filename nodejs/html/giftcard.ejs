@@ -53,8 +53,71 @@
 
     <!-- Compiled and minified JavaScript -->
     <script type="text/javascript">
-        var chart;
-        var cfg;
+        var auto_colors = ['rgb(255, 99, 132)',
+            'rgb(255, 159, 64)',
+            'rgb(255, 205, 86)',
+            'rgb(75, 192, 192)',
+            'rgb(54, 162, 235)',
+            'rgb(153, 102, 255)',
+            'rgb(201, 203, 207)']
+        var color = Chart.helpers.color;
+        var cfg = {
+            type: 'bar',
+            data: {
+                datasets: []
+            },
+            options: {
+                scales: {
+                    xAxes: [{
+                        type: 'time',
+                        distribution: 'linear',
+                        ticks: {
+                            source: 'auto',
+                            autoSkip: true,
+                        },
+                        time: {
+                            displayFormats: {
+                                millisecond: 'HH:mm:ss.SSS',
+                                second: 'HH:mm:ss',
+                                minute: 'HH:mm',
+                                hour: 'MM-DD HH:mm',
+                                day: 'MM/DD',
+                                week: 'YY/MM/DD',
+                                month: 'YY/MM',
+                                quarter: 'YY/[Q]Q',
+                                year: 'YYYY',
+                                datetime: 'YYYY-MM-DD HH:mm:ss',
+                            },
+                            min: (now - displayDays * 24 * 60 * 60) * 1000,
+                        }
+                    }],
+                    yAxes: [{
+                        scaleLabel: {
+                            display: true,
+                            labelString: '최저가'
+                        }
+                    }]
+                },
+                legend: {
+                    position: 'bottom',
+                },
+                tooltips: {
+                    intersect: false,
+                    mode: 'nearest',
+                    callbacks: {
+                        label: function (tooltipItem, myData) {
+                            var label = myData.datasets[tooltipItem.datasetIndex].label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            label += parseFloat(tooltipItem.value).toFixed(2);
+                            return label;
+                        }
+                    }
+                }
+            }
+        };
+        var chart = new Chart($('#myChart'), cfg);
 
         var displayDays = 7;
         var fillDays = 90;
@@ -62,7 +125,7 @@
         var fillPeriod = (fillDays * 24 * 60 * 60) / fillCount;
         var now = Math.floor(Date.now() / 1000);
 
-        $('.change-range').click(function (event, ) {
+        $('.change-range').click(function (event) {
             console.log($(this).data());
             chart.config.options.scales.xAxes[0].time.min = (now - $(this).data().range * 24 * 60 * 60) * 1000;
             $('.change-range').removeClass('btn');
@@ -73,128 +136,69 @@
             chart.update();
         });
 
-        $.ajax({
-            url: "/giftcard/lowprice",
-            dataType: "json",
-            crossDomain: true,
-            data: <%- JSON.stringify(qs) %>
-        }).done(function (response) {
-            console.log(response);
-            var auto_colors = ['rgb(255, 99, 132)',
-                'rgb(255, 159, 64)',
-                'rgb(255, 205, 86)',
-                'rgb(75, 192, 192)',
-                'rgb(54, 162, 235)',
-                'rgb(153, 102, 255)',
-                'rgb(201, 203, 207)']
-            var color = Chart.helpers.color;
-            cfg = {
-                type: 'bar',
-                data: {
-                    datasets: response.map(function (dataset, dataset_index) {
-                        var lowprices = dataset.data.sort(function (a, b) {
-                            if (a.t > b.t) {
-                                return -1;
-                            } else if (a.t < b.t) {
-                                return 1;
-                            } else {
-                                return 0;
-                            }
-                        });
-
-                        var values = lowprices.slice();
-
-                        for (var i = 0; i < fillCount; i++) {
-                            var y = 0;
-                            var t = (now - fillPeriod * i) * 1000;
-                            for (var j = 0; j < lowprices.length; j++) {
-                                if (lowprices[j].t < t) {
-                                    values.push({ t: t, y: lowprices[j].y });
-                                    break;
-                                }
-                            }
+        var updateData = function () {
+            $.ajax({
+                url: "/giftcard/lowprice",
+                dataType: "json",
+                crossDomain: true,
+                data: <%- JSON.stringify(qs) %>
+            }).done(function (response) {
+                console.log(response);
+                chart.config.data.datasets = response.map(function (dataset, dataset_index) {
+                    var lowprices = dataset.data.sort(function (a, b) {
+                        if (a.t > b.t) {
+                            return -1;
+                        } else if (a.t < b.t) {
+                            return 1;
+                        } else {
+                            return 0;
                         }
+                    });
 
-                        values.push({ t: now * 1000, y: lowprices[0].y });
+                    var values = lowprices.slice();
 
-                        values = values.sort(function (a, b) {
-                            if (a.t < b.t) {
-                                return -1;
-                            } else if (a.t > b.t) {
-                                return 1;
-                            } else {
-                                return 0;
-                            }
-                        });
-
-                        console.log({ product: dataset.product, values: values });
-                        return {
-                            label: dataset.product,
-                            backgroundColor: color(auto_colors[dataset_index]).alpha(0.5).rgbString(),
-                            borderColor: auto_colors[dataset_index],
-                            data: values,
-                            type: 'line',
-                            steppedLine: 'before',
-                            pointRadius: 0,
-                            fill: false,
-                            lineTension: 0,
-                            borderWidth: 2,
-                        };
-                    })
-                },
-                options: {
-                    scales: {
-                        xAxes: [{
-                            type: 'time',
-                            distribution: 'linear',
-                            ticks: {
-                                source: 'auto',
-                                autoSkip: true,
-                            },
-                            time: {
-                                displayFormats: {
-                                    millisecond: 'HH:mm:ss.SSS',
-                                    second: 'HH:mm:ss',
-                                    minute: 'HH:mm',
-                                    hour: 'MM-DD HH:mm',
-                                    day: 'MM/DD',
-                                    week: 'YY/MM/DD',
-                                    month: 'YY/MM',
-                                    quarter: 'YY/[Q]Q',
-                                    year: 'YYYY',
-                                    datetime: 'YYYY-MM-DD HH:mm:ss',
-                                },
-                                min: (now - displayDays * 24 * 60 * 60) * 1000,
-                            }
-                        }],
-                        yAxes: [{
-                            scaleLabel: {
-                                display: true,
-                                labelString: '최저가'
-                            }
-                        }]
-                    },
-                    legend: {
-                        position: 'bottom',
-                    },
-                    tooltips: {
-                        intersect: false,
-                        mode: 'nearest',
-                        callbacks: {
-                            label: function (tooltipItem, myData) {
-                                var label = myData.datasets[tooltipItem.datasetIndex].label || '';
-                                if (label) {
-                                    label += ': ';
-                                }
-                                label += parseFloat(tooltipItem.value).toFixed(2);
-                                return label;
+                    for (var i = 0; i < fillCount; i++) {
+                        var y = 0;
+                        var t = (now - fillPeriod * i) * 1000;
+                        for (var j = 0; j < lowprices.length; j++) {
+                            if (lowprices[j].t < t) {
+                                values.push({ t: t, y: lowprices[j].y });
+                                break;
                             }
                         }
                     }
-                }
-            };
-            chart = new Chart($('#myChart'), cfg);
-        });
+
+                    values.push({ t: now * 1000, y: lowprices[0].y });
+
+                    values = values.sort(function (a, b) {
+                        if (a.t < b.t) {
+                            return -1;
+                        } else if (a.t > b.t) {
+                            return 1;
+                        } else {
+                            return 0;
+                        }
+                    });
+
+                    return {
+                        label: dataset.product,
+                        backgroundColor: color(auto_colors[dataset_index]).alpha(0.5).rgbString(),
+                        borderColor: auto_colors[dataset_index],
+                        data: values,
+                        type: 'line',
+                        steppedLine: 'before',
+                        pointRadius: 0,
+                        fill: false,
+                        lineTension: 0,
+                        borderWidth: 2,
+                    };
+                });
+                chart.update();
+            });
+        }
+
+        setTimeout(updateData, 5 * 60 * 1000);
+        updateData();
     </script>
 </body>
 
