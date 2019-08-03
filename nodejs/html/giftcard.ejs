@@ -50,7 +50,6 @@
         </div>
     </div>
 
-
     <!-- Compiled and minified JavaScript -->
     <script type="text/javascript">
         var auto_colors = ['rgb(255, 99, 132)',
@@ -141,7 +140,7 @@
                 url: "/giftcard/lowprice",
                 dataType: "json",
                 crossDomain: true,
-                data: <%- JSON.stringify(qs) %>
+                data: <% echo(JSON.stringify(qs)) %>
             }).done(function (response) {
                 console.log(response);
                 chart.config.data.datasets = response.map(function (dataset, dataset_index) {
@@ -194,11 +193,12 @@
                     };
                 });
                 chart.update();
+                $('#update-time').html(new Date().toLocaleString());
             });
         }
+        updateData();
 
         setTimeout(updateData, 5 * 60 * 1000);
-        updateData();
     </script>
 </body>
 
