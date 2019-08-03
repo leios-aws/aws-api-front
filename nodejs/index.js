@@ -6,7 +6,7 @@ exports.handler = function (event, context, callback) {
 
     console.log(`Response: ${event.pathParameters.type}.ejs`);
 
-    ejs.renderFile(`html/${event.pathParameters.type}.ejs`, {qs: event.queryStringParameters}, {}, function (err, html) {
+    ejs.renderFile(`html/${event.pathParameters.type}.ejs`, {qs: event.queryStringParameters}, {outputFunctionName: 'echo'}, function (err, html) {
         // str => Rendered HTML string
         callback(err, {
             "statusCode": 200,
