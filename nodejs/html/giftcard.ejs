@@ -44,7 +44,27 @@
             </div>
             <div class="row">
                 <div class="chart-container">
-                    <canvas id="myChart"></canvas>
+                    <canvas id="lowprice-chart-0"></canvas>
+                </div>
+            </div>
+            <div class="row">
+                <div class="chart-container">
+                    <canvas id="lowprice-chart-1"></canvas>
+                </div>
+            </div>
+            <div class="row">
+                <div class="chart-container">
+                    <canvas id="lowprice-chart-2"></canvas>
+                </div>
+            </div>
+            <div class="row">
+                <div class="chart-container">
+                    <canvas id="lowprice-chart-3"></canvas>
+                </div>
+            </div>
+            <div class="row">
+                <div class="chart-container">
+                    <canvas id="lowprice-chart-4"></canvas>
                 </div>
             </div>
         </div>
@@ -60,63 +80,69 @@
             'rgb(153, 102, 255)',
             'rgb(201, 203, 207)']
         var color = Chart.helpers.color;
-        var cfg = {
-            type: 'bar',
-            data: {
-                datasets: []
-            },
-            options: {
-                scales: {
-                    xAxes: [{
-                        type: 'time',
-                        distribution: 'linear',
-                        ticks: {
-                            source: 'auto',
-                            autoSkip: true,
-                        },
-                        time: {
-                            displayFormats: {
-                                millisecond: 'HH:mm:ss.SSS',
-                                second: 'HH:mm:ss',
-                                minute: 'HH:mm',
-                                hour: 'MM-DD HH:mm',
-                                day: 'MM/DD',
-                                week: 'YY/MM/DD',
-                                month: 'YY/MM',
-                                quarter: 'YY/[Q]Q',
-                                year: 'YYYY',
-                                datetime: 'YYYY-MM-DD HH:mm:ss',
+        var charts = [];
+
+        for (var i = 0; i < 5; i++) {
+            var cfg = {
+                type: 'bar',
+                data: {
+                    datasets: []
+                },
+                options: {
+                    scales: {
+                        xAxes: [{
+                            type: 'time',
+                            distribution: 'linear',
+                            ticks: {
+                                source: 'auto',
+                                autoSkip: true,
                             },
-                            min: (now - displayDays * 24 * 60 * 60) * 1000,
-                        }
-                    }],
-                    yAxes: [{
-                        scaleLabel: {
-                            display: true,
-                            labelString: '최저가'
-                        }
-                    }]
-                },
-                legend: {
-                    position: 'bottom',
-                },
-                tooltips: {
-                    intersect: false,
-                    mode: 'nearest',
-                    callbacks: {
-                        label: function (tooltipItem, myData) {
-                            var label = myData.datasets[tooltipItem.datasetIndex].label || '';
-                            if (label) {
-                                label += ': ';
+                            time: {
+                                displayFormats: {
+                                    millisecond: 'HH:mm:ss.SSS',
+                                    second: 'HH:mm:ss',
+                                    minute: 'HH:mm',
+                                    hour: 'MM-DD HH:mm',
+                                    day: 'MM/DD',
+                                    week: 'YY/MM/DD',
+                                    month: 'YY/MM',
+                                    quarter: 'YY/[Q]Q',
+                                    year: 'YYYY',
+                                    datetime: 'YYYY-MM-DD HH:mm:ss',
+                                },
+                                min: (now - displayDays * 24 * 60 * 60) * 1000,
                             }
-                            label += parseFloat(tooltipItem.value).toFixed(2);
-                            return label;
+                        }],
+                        yAxes: [{
+                            scaleLabel: {
+                                display: true,
+                                labelString: '최저가'
+                            }
+                        }]
+                    },
+                    legend: {
+                        position: 'bottom',
+                    },
+                    tooltips: {
+                        intersect: false,
+                        mode: 'nearest',
+                        callbacks: {
+                            label: function (tooltipItem, myData) {
+                                var label = myData.datasets[tooltipItem.datasetIndex].label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                label += parseFloat(tooltipItem.value).toFixed(2);
+                                return label;
+                            }
                         }
                     }
                 }
-            }
-        };
-        var chart = new Chart($('#myChart'), cfg);
+            };
+            var chart_id = `#lowprice-chart-${i}`;
+            console.log({ chart_id });
+            charts.push(new Chart($(chart_id), cfg));
+        }
 
         var displayDays = 7;
         var fillDays = 90;
@@ -125,14 +151,18 @@
         var now = Math.floor(Date.now() / 1000);
 
         $('.change-range').click(function (event) {
-            console.log($(this).data());
-            chart.config.options.scales.xAxes[0].time.min = (now - $(this).data().range * 24 * 60 * 60) * 1000;
+            var days = $(this).data().range;
+            console.log(days);
             $('.change-range').removeClass('btn');
             $('.change-range').addClass('btn-flat');
 
             $(this).removeClass('btn-flat');
             $(this).addClass('btn');
-            chart.update();
+
+            charts.forEach(function (chart) {
+                chart.config.options.scales.xAxes[0].time.min = (now - days * 24 * 60 * 60) * 1000;
+                chart.update();
+            });
         });
 
         var updateData = function () {
@@ -143,7 +173,7 @@
                 data: <% echo(JSON.stringify(qs)) %>
             }).done(function (response) {
                 console.log(response);
-                chart.config.data.datasets = response.map(function (dataset, dataset_index) {
+                response.map(function (dataset, dataset_index) {
                     var lowprices = dataset.data.sort(function (a, b) {
                         if (a.t > b.t) {
                             return -1;
@@ -179,10 +209,10 @@
                         }
                     });
 
-                    return {
+                    charts[dataset_index].config.data.datasets = [{
                         label: dataset.product,
-                        backgroundColor: color(auto_colors[dataset_index]).alpha(0.5).rgbString(),
-                        borderColor: auto_colors[dataset_index],
+                        backgroundColor: color(auto_colors[0]).alpha(0.5).rgbString(),
+                        borderColor: auto_colors[0],
                         data: values,
                         type: 'line',
                         steppedLine: 'before',
@@ -190,9 +220,9 @@
                         fill: false,
                         lineTension: 0,
                         borderWidth: 2,
-                    };
+                    }];
+                    charts[dataset_index].update();
                 });
-                chart.update();
                 $('#update-time').html(new Date().toLocaleString());
             });
         }
