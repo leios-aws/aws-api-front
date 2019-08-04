@@ -42,31 +42,6 @@
                     <a class="waves-effect waves-teal btn-flat change-range" data-range="90">3달</a>
                 </div>
             </div>
-            <div class="row">
-                <div class="chart-container">
-                    <canvas id="lowprice-chart-0"></canvas>
-                </div>
-            </div>
-            <div class="row">
-                <div class="chart-container">
-                    <canvas id="lowprice-chart-1"></canvas>
-                </div>
-            </div>
-            <div class="row">
-                <div class="chart-container">
-                    <canvas id="lowprice-chart-2"></canvas>
-                </div>
-            </div>
-            <div class="row">
-                <div class="chart-container">
-                    <canvas id="lowprice-chart-3"></canvas>
-                </div>
-            </div>
-            <div class="row">
-                <div class="chart-container">
-                    <canvas id="lowprice-chart-4"></canvas>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -139,9 +114,13 @@
                     }
                 }
             };
-            var chart_id = `#lowprice-chart-${i}`;
-            console.log({ chart_id });
-            charts.push(new Chart($(chart_id), cfg));
+            var chart_id = `lowprice-chart-${i}`;
+            $('.section').append(`<div class="row">
+                <div class="chart-container">
+                    <canvas id="${chart_id}"></canvas>
+                </div>
+            </div>`);
+            charts.push(new Chart($(`#${chart_id}`), cfg));
         }
 
         var displayDays = 7;
@@ -152,7 +131,6 @@
 
         $('.change-range').click(function (event) {
             var days = $(this).data().range;
-            console.log(days);
             $('.change-range').removeClass('btn');
             $('.change-range').addClass('btn-flat');
 
@@ -211,8 +189,8 @@
 
                     charts[dataset_index].config.data.datasets = [{
                         label: dataset.product,
-                        backgroundColor: color(auto_colors[0]).alpha(0.5).rgbString(),
-                        borderColor: auto_colors[0],
+                        backgroundColor: color(auto_colors[dataset_index]).alpha(0.5).rgbString(),
+                        borderColor: auto_colors[dataset_index],
                         data: values,
                         type: 'line',
                         steppedLine: 'before',
