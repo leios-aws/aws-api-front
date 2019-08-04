@@ -140,11 +140,11 @@
             $.ajax({
                 url: "/fitness/weight",
                 dataType: "json",
-                crossDomain: true ,
+                crossDomain: true,
                 data: <% echo(JSON.stringify(qs)) %>
             }).done(function (response) {
                 console.log(response);
-                chart.config.data = [{
+                chart.config.data.datasets = [{
                     label: '김민수',
                     backgroundColor: color(auto_colors[0]).alpha(0.5).rgbString(),
                     borderColor: auto_colors[0],
@@ -167,7 +167,7 @@
                 chart.update();
                 $('#update-time').html(new Date().toLocaleString());
             });
-        );
+        };
         updateData();
     </script>
 </body>
