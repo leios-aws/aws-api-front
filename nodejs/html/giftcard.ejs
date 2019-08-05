@@ -127,7 +127,7 @@
         var fillDays = 90;
         var fillCount = 360;
         var fillPeriod = (fillDays * 24 * 60 * 60) / fillCount;
-        var now = Math.floor(Date.now() / 1000);
+        var now;
 
         $('.change-range').click(function (event) {
             var days = $(this).data().range;
@@ -144,6 +144,7 @@
         });
 
         var updateData = function () {
+            now = Math.floor(Date.now() / 1000);
             $.ajax({
                 url: "/giftcard/lowprice",
                 dataType: "json",
