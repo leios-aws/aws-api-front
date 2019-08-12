@@ -39,7 +39,7 @@
                 <div class="col s12 center-align">
                     <a class="waves-effect waves-teal btn change-range" data-range="7">1주</a>
                     <a class="waves-effect waves-teal btn-flat change-range" data-range="30">1달</a>
-                    <a class="waves-effect waves-teal btn-flat change-range" data-range="90">3달</a>
+                    <a class="waves-effect waves-teal btn-flat change-range" data-range="365">1년</a>
                 </div>
             </div>
             <div class="row">
@@ -61,6 +61,12 @@
             'rgb(153, 102, 255)',
             'rgb(201, 203, 207)']
         var color = Chart.helpers.color;
+        var displayDays = 7;
+        var fillDays = 90;
+        var fillCount = 360;
+        var fillPeriod = (fillDays * 24 * 60 * 60) / fillCount;
+        var now = Math.floor(Date.now() / 1000);
+
         var cfg = {
             type: 'bar',
             data: {
@@ -119,12 +125,6 @@
         };
         var chart = new Chart($('#myChart'), cfg);
 
-        var displayDays = 7;
-        var fillDays = 90;
-        var fillCount = 360;
-        var fillPeriod = (fillDays * 24 * 60 * 60) / fillCount;
-        var now;
-
         $('.change-range').click(function (event) {
             console.log($(this).data());
             chart.config.options.scales.xAxes[0].time.min = (now - $(this).data().range * 24 * 60 * 60) * 1000;
@@ -159,10 +159,9 @@
                         }
                     }),
                     type: 'line',
-                    steppedLine: 'before',
-                    pointRadius: 0,
+                    pointRadius: 2,
                     fill: false,
-                    lineTension: 0,
+                    lineTension: 0.1,
                     borderWidth: 2,
                 }];
                 chart.update();

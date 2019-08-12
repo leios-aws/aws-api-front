@@ -37,6 +37,7 @@
         <div class="section">
             <div class="row">
                 <div class="col s12 center-align">
+                    <a class="waves-effect waves-teal btn-flat change-range" data-range="1">1일</a>
                     <a class="waves-effect waves-teal btn change-range" data-range="7">1주</a>
                     <a class="waves-effect waves-teal btn-flat change-range" data-range="30">1달</a>
                     <a class="waves-effect waves-teal btn-flat change-range" data-range="90">3달</a>
@@ -55,8 +56,13 @@
             'rgb(153, 102, 255)',
             'rgb(201, 203, 207)']
         var color = Chart.helpers.color;
-        var charts = [];
+        var displayDays = 7;
+        var fillDays = 90;
+        var fillCount = 360;
+        var fillPeriod = (fillDays * 24 * 60 * 60) / fillCount;
+        var now = Math.floor(Date.now() / 1000);
 
+        var charts = [];
         for (var i = 0; i < 5; i++) {
             var cfg = {
                 type: 'bar',
@@ -122,12 +128,6 @@
             </div>`);
             charts.push(new Chart($(`#${chart_id}`), cfg));
         }
-
-        var displayDays = 7;
-        var fillDays = 90;
-        var fillCount = 360;
-        var fillPeriod = (fillDays * 24 * 60 * 60) / fillCount;
-        var now;
 
         $('.change-range').click(function (event) {
             var days = $(this).data().range;
